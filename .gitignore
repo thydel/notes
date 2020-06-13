@@ -1,3 +1,4 @@
 *.json
+!meta.json
 *.gist
 tmp/
