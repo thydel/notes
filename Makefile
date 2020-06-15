@@ -19,3 +19,5 @@ $~: jq := "- \(.date) [\(.title)](\(.file))"
 $~: $~ := echo -e '\# notes\n\nTry to use zettelkasten via minimal MD and pandoc\n';
 $~: $~ += jq -r '$(jq)'
 $~: $(jsons); @cat $^ | ($($@)) > $@
+
+main: README.md
