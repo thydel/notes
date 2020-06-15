@@ -10,3 +10,4 @@ Try to use zettelkasten via minimal MD and pandoc
 - 2020-06-13 [Fix missing GPG key when using pass](2020-06-13T15_56_13Z.md)
 - 2020-06-14 [Compile latest git version](2020-06-14T17_57_08Z.md)
 - 2020-06-15 [Git diff strangeness (remote whithout HEAD)](2020-06-15T10_31_44Z.md)
+- 2020-06-15 [Got warning when pull with git version 2.27.0](2020-06-15T12_38_33Z.md)
