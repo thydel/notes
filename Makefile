@@ -1,6 +1,19 @@
+MAKEFLAGS += -Rr
+MAKEFLAGS += --warn-undefined-variables
+SHELL := $(shell which bash)
+.SHELLFLAGS := -euo pipefail -c
+
+.ONESHELL:
+.DELETE_ON_ERROR:
+.PHONY: phony
+
+.RECIPEPREFIX :=
+.RECIPEPREFIX +=
+
 top:; @date
 
-SHELL != which bash
+Makefile:;
+%.md:;
 
 id:; @date -u +'touch %FT%TZ.md' | tr : _
 
@@ -11,7 +24,14 @@ gists := $(mds:%.md=%.gist)
 json: $(jsons)
 gist: $(gists)
 
-%.json: %.md Makefile; pandoc $< --template meta.json | jq '. + { file: "$<", id: "$(subst _,:,$<)" }' > $@
+~ := %.json
+$~: md = $<
+$~: json = $@
+$~: base = $(basename $(md))
+$~: id = $(subst _,:,$(base))
+$~: jq = . + { file: "$(md)", id: "$(id)" }
+$~: %.md Makefile; pandoc $(md) --template meta.json | jq '$(jq)' > $(json)
+
 %.gist: %.json Makefile; @< $< jq -r '"gh gist create -d \"\(.title)\" \(.file) | tee $@"'
 
 ~ := README.md
