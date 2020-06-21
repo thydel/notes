@@ -14,3 +14,4 @@ Try to use zettelkasten via minimal MD and pandoc
 - 2020-06-18 [Extract thundebird search folders](2020-06-18T08_51_11Z.md)
 - 2020-06-19 [Work with multiple clones](2020-06-19T07_47_18Z.md)
 - 2020-06-19 [Purge MySQLbinary logs](2020-06-19T13_50_19Z.md)
+- 2020-06-20 [Use greek letters](2020-06-20T15_23_57Z.md)
