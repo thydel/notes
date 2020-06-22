@@ -17,27 +17,76 @@ Makefile:;
 
 id:; @date -u +'touch %FT%TZ.md' | tr : _
 
-mds := $(sort $(wildcard *-*.md))
-jsons := $(mds:%.md=%.json)
-gists := $(mds:%.md=%.gist)
+eq.l = $(and $(findstring $(strip $1),$(strip $2)),$(findstring $(strip $2),$(strip $1)))
+cdr.l = $(filter-out $(firstword $1), $1)
+map.l = $(eval λ = $(subst €,$$,$1))$(foreach _,$2,$(call λ,$_))
 
-json: $(jsons)
-gist: $(gists)
+define varbysuff.l
+$(strip
+  $(foreach _, $(.VARIABLES),
+    $(if
+      $(and
+        $(call eq.l, $(origin $_), file),
+        $(call eq.l, $(suffix $_), .$(strip $1))),
+      $_)))
+endef
 
-~ := %.json
+id.d := id
+lib.d := lib
+
+tmp.t := tmp
+json.t := json
+title.t := title
+
+tmpdir.s := $(call map.l, €(€1), $(call varbysuff.l, t))
+tmp: phony $(patsubst %, %/.stone, $(tmpdir.s))
+
+md.s := $(sort $(wildcard $(id.d)/*-*.md))
+json.s := $(md.s:$(id.d)/%.md=$(json.t)/%.json)
+
+$(lib.d)/meta.json:;
+
+~ := $(json.t)/%.json
 $~: md = $<
 $~: json = $@
-$~: base = $(basename $(md))
+$~: base = $(notdir $(basename $(md)))
 $~: id = $(subst _,:,$(base))
 $~: jq = . + { file: "$(md)", id: "$(id)" }
-$~: %.md Makefile; pandoc $(md) --template meta.json | jq '$(jq)' > $(json)
+$~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
+$~: $(id.d)/%.md $(json.t)/.stone $(lib.d)/meta.json $(if ,Makefile); $(cmd)
 
-%.gist: %.json Makefile; @< $< jq -r '"gh gist create -d \"\(.title)\" \(.file) | tee $@"'
+json.f := $(tmp.t)/all.json
+$(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) > $@
+json: phony $(json.f)
 
 ~ := README.md
 $~: jq := "- \(.date) [\(.title)](\(.file))"
 $~: $~ := echo -e '\# notes\n\nTry to use zettelkasten via minimal MD and pandoc\n';
-$~: $~ += jq -r '$(jq)'
-$~: $(jsons); @cat $^ | ($($@)) > $@
+$~: $~ += jq -r '$(jq)' $(json.f)
+$~: $(json.f) $(if ,Makefile); ($($@)) > $@
 
-main: README.md
+title.f := $(tmp.t)/title.sh
+~ := $(title.f)
+$~: jq := "ln -f \(.file) \'$(title.t)/\(.date) \(.title).md\'"
+$~: $~ := jq -r $$'$(jq)' $(json.f)
+$~: $(json.f) $(if ,Makefile); $($@) > $@
+title: $~ $(tmp.t)/.stone phony; dash $<
+
+main: phony README.md
+
+define .gitignore
+$(call map.l, echo €1/;, $(tmpdir.s))
+endef
+
+.gitignore: phony; ($($@)) > $@
+gitignore: .gitignore
+
+%/.stone:; mkdir -p $(@D); touch $@
+.PRECIOUS: %/.stone
+
+.stone:; touch $@
+stone: phony; touch .$@
+
+# Local Variables:
+# indent-tabs-mode: nil
+# End:
