@@ -31,6 +31,8 @@ $(strip
       $_)))
 endef
 
+wip.l = $(if $(WIP),Makefile)
+
 id.d := id
 lib.d := lib
 
@@ -53,7 +55,7 @@ $~: base = $(notdir $(basename $(md)))
 $~: id = $(subst _,:,$(base))
 $~: jq = . + { file: "$(md)", id: "$(id)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
-$~: $(id.d)/%.md $(json.t)/.stone $(lib.d)/meta.json $(if ,Makefile); $(cmd)
+$~: $(id.d)/%.md $(json.t)/.stone $(lib.d)/meta.json $(wip.l); $(cmd)
 
 json.f := $(tmp.t)/all.json
 $(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) > $@
@@ -63,13 +65,12 @@ json: phony $(json.f)
 $~: jq := "- \(.date) [\(.title)](\(.file))"
 $~: $~ := echo -e '\# notes\n\nTry to use zettelkasten via minimal MD and pandoc\n';
 $~: $~ += jq -r '$(jq)' $(json.f)
-$~: $(json.f) $(if ,Makefile); ($($@)) > $@
+$~: $(json.f) $(wip.l); ($($@)) > $@
 
-title.f := $(tmp.t)/title.sh
-~ := $(title.f)
+~ := $(tmp.t)/title.sh
 $~: jq := "ln -f \(.file) \'$(title.t)/\(.date) \(.title).md\'"
 $~: $~ := jq -r $$'$(jq)' $(json.f)
-$~: $(json.f) $(if ,Makefile); $($@) > $@
+$~: $(json.f) $(wip.l); $($@) > $@
 title: $~ $(tmp.t)/.stone phony; dash $<
 
 main: phony README.md
