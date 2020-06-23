@@ -68,7 +68,9 @@ $~: $~ += jq -r '$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); ($($@)) > $@
 
 ~ := $(tmp.t)/title.sh
-$~: jq := "ln -f \(.file) \'$(title.t)/\(.date) \(.title).md\'"
+$~: hard := ln -f \(.file)
+$~: soft := ln -sf ../\(.file)
+$~: jq := "$(soft) \'$(title.t)/\(.date) \(.title).md\'"
 $~: $~ := jq -r $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
 title: $~ $(tmp.t)/.stone phony; dash $<
