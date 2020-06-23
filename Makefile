@@ -73,7 +73,7 @@ $~: soft := ln -sf ../\(.file)
 $~: jq := "$(soft) \'$(title.t)/\(.date) \(.title).md\'"
 $~: $~ := jq -r $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
-title: $~ $(tmp.t)/.stone phony; dash $<
+title: $~ $(tmp.t)/.stone $(title.t)/.stone phony; dash $<
 
 main: phony README.md
 
