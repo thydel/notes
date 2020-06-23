@@ -47,7 +47,7 @@ id: day  := $(firstword $(date))
 id: id   := $(lastword $(date))
 id: head := $~
 id: file := $(id.d)/$(subst :,_,$(id)).md
-id: phony; $(warning $(date) $(day)) echo -e '$(head)\n---' > $(file)
+id: phony; @echo -e '$(head)\n---' > $(file)
 
 tmp.t := tmp
 json.t := json
