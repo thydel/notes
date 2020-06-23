@@ -37,14 +37,17 @@ lib.d := lib
 define ~
 ---
 title:
-date: $(date)
+date: $(day)
+id: "§$(id)"
 tags:
 type:
 endef
-id: date != date -u +%FT%TZ
+id: date != date -u +'%F %FT%TZ'
+id: day  := $(firstword $(date))
+id: id   := $(lastword $(date))
 id: head := $~
-id: file := $(id.d)/$(subst :,_,$(date)).md
-id: phony; echo -e '$(head)\n---' > $(file)
+id: file := $(id.d)/$(subst :,_,$(id)).md
+id: phony; $(warning $(date) $(day)) echo -e '$(head)\n---' > $(file)
 
 tmp.t := tmp
 json.t := json
