@@ -34,7 +34,17 @@ wip.l = $(if $(WIP),Makefile)
 id.d := id
 lib.d := lib
 
-id: phony; @date -u +'touch $(id.d)/%FT%TZ.md' | tr : _
+define ~
+---
+title:
+date: $(date)
+tags:
+type:
+endef
+id: date != date -u +%FT%TZ
+id: head := $~
+id: file := $(id.d)/$(subst :,_,$(date)).md
+id: phony; echo -e '$(head)\n---' > $(file)
 
 tmp.t := tmp
 json.t := json
