@@ -64,9 +64,10 @@ $(lib.d)/meta.json: $(lib.d)/.stone; echo '$$meta-json$$' > $@
 ~ := $(json.t)/%.json
 $~: md = $<
 $~: json = $@
-$~: base = $(notdir $(basename $(md)))
+$~: file = $(notdir $<)
+$~: base = $(basename $(file))
 $~: id = $(subst _,:,$(base))
-$~: jq = . + { file: "$(md)", id: "$(id)" }
+$~: jq = . + { file: "$(file)", id: "$(id)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
 $~: $(id.d)/%.md $(json.t)/.stone $(lib.d)/meta.json $(wip.l); $(cmd)
 
@@ -75,7 +76,7 @@ $(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) > $@
 json: phony $(json.f)
 
 ~ := README.md
-$~: jq := "- \(.date) [\(.title)](\(.file))"
+$~: jq := "- \(.date) [\(.title)]($(id.d)/\(.file))"
 $~: $~ := echo -e '\# notes\n\nTry to use zettelkasten via minimal MD and pandoc\n';
 $~: $~ += jq -r '$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); ($($@)) > $@
@@ -87,6 +88,15 @@ $~: jq := "$(soft) \'$(title.t)/\(.date) \(.title).md\'"
 $~: $~ := jq -r $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
 title: $~ $(tmp.t)/.stone $(title.t)/.stone phony; dash $<
+
+χ := \\"#"
+quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
+
+~ := $(tmp.t)/links.md
+$~: jq := $(call quote.l,"[§\(.id)]: \(.file) «§\(.title)»")
+$~: $~ := jq -r $$'$(jq)' $(json.f)
+$~: $(json.f) $(wip.l); $($@) > $@
+links: $~ $(tmp.t)/.stone phony
 
 main: phony README.md
 
