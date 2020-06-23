@@ -79,6 +79,7 @@ main: phony README.md
 
 define .gitignore
 $(call map.l, echo €1/;, $(tmpdir.s))
+echo .stone
 endef
 
 .gitignore: phony; ($($@)) > $@
