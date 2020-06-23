@@ -92,9 +92,14 @@ title: $~ $(tmp.t)/.stone $(title.t)/.stone phony; dash $<
 χ := \\"#"
 quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
 
+σ :=  # Non breaking space
+
 ~ := $(tmp.t)/link.md
-$~: jq := $(call quote.l,"[§\(.id)]: \(.file) «§\(.title)»")
-$~: $~ := jq -r $$'$(jq)' $(json.f)
+$~: jq := map($(call quote.l,"[§\(.id)]: \(.file) «§$(σ)\(.title)»"))
+$~: jq += + [""] +
+$~: jq += map("[§$(σ)\(.title)][§\(.id)]")
+$~: jq += | .[]
+$~: $~ := jq -sr $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
 link: $~ $(tmp.t)/.stone phony
 
