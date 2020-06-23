@@ -11,7 +11,7 @@ Try to use zettelkasten via minimal MD and pandoc
 - 2020-06-14 [Compile latest git version](id/2020-06-14T17_57_08Z.md)
 - 2020-06-15 [Git diff strangeness (remote whithout HEAD)](id/2020-06-15T10_31_44Z.md)
 - 2020-06-15 [Got warning when pull with git version 2.27.0](id/2020-06-15T12_38_33Z.md)
-- 2020-06-18 [Extract thundebird search folders](id/2020-06-18T08_51_11Z.md)
+- 2020-06-18 [Extract thunderbird search folders](id/2020-06-18T08_51_11Z.md)
 - 2020-06-19 [Work with multiple clones](id/2020-06-19T07_47_18Z.md)
 - 2020-06-19 [Purge MySQLbinary logs](id/2020-06-19T13_50_19Z.md)
 - 2020-06-20 [Use greek letters](id/2020-06-20T15_23_57Z.md)
