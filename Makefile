@@ -46,7 +46,7 @@ tmp: phony $(patsubst %, %/.stone, $(tmpdir.s))
 md.s := $(sort $(wildcard $(id.d)/*-*.md))
 json.s := $(md.s:$(id.d)/%.md=$(json.t)/%.json)
 
-$(lib.d)/meta.json:;
+$(lib.d)/meta.json: $(lib.d)/.stone; echo '$$meta-json$$' > $@
 
 ~ := $(json.t)/%.json
 $~: md = $<
