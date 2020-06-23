@@ -92,13 +92,14 @@ title: $~ $(tmp.t)/.stone $(title.t)/.stone phony; dash $<
 χ := \\"#"
 quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
 
-~ := $(tmp.t)/links.md
+~ := $(tmp.t)/link.md
 $~: jq := $(call quote.l,"[§\(.id)]: \(.file) «§\(.title)»")
 $~: $~ := jq -r $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
-links: $~ $(tmp.t)/.stone phony
+link: $~ $(tmp.t)/.stone phony
 
 main: phony README.md
+all: phony main title link
 
 define .gitignore
 $(call map.l, echo €1/;, $(tmpdir.s))
