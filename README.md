@@ -17,3 +17,5 @@ Try to use zettelkasten via minimal MD and pandoc
 - 2020-06-20 [Use greek letters](id/2020-06-20T15_23_57Z.md)
 - 2020-06-23 [Missing gpg key for elpa](id/2020-06-23T09_27_39Z.md)
 - 2020-06-23 [Various unicode character](id/2020-06-23T11_02_50Z.md)
+- 2020-06-23 [Use grex](id/2020-06-23T13_50_48Z.md)
+- 2020-06-23 [Install rust](id/2020-06-23T13_51_47Z.md)
