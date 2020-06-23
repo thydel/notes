@@ -15,8 +15,6 @@ top:; @date
 Makefile:;
 %.md:;
 
-id:; @date -u +'touch %FT%TZ.md' | tr : _
-
 eq.l = $(and $(findstring $(strip $1),$(strip $2)),$(findstring $(strip $2),$(strip $1)))
 cdr.l = $(filter-out $(firstword $1), $1)
 map.l = $(eval λ = $(subst €,$$,$1))$(foreach _,$2,$(call λ,$_))
@@ -35,6 +33,8 @@ wip.l = $(if $(WIP),Makefile)
 
 id.d := id
 lib.d := lib
+
+id: phony; @date -u +'touch $(id.d)/%FT%TZ.md' | tr : _
 
 tmp.t := tmp
 json.t := json
