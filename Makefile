@@ -83,7 +83,7 @@ $~: $(json.f) $(wip.l); ($($@)) > $@
 
 ~ := $(tmp.t)/title.sh
 $~: hard := ln -f \(.file)
-$~: soft := ln -sf ../\(.file)
+$~: soft := ln -sf ../$(id.d)/\(.file)
 $~: jq := "$(soft) \'$(title.t)/\(.date) \(.title).md\'"
 $~: $~ := jq -r $$'$(jq)' $(json.f)
 $~: $(json.f) $(wip.l); $($@) > $@
