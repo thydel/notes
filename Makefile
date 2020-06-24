@@ -34,7 +34,7 @@ wip.l = $(if $(WIP),Makefile)
 id.d := id
 lib.d := lib
 
-define ~
+define ~head
 ---
 title:
 date: $(day)
@@ -42,12 +42,18 @@ id: "§$(id)"
 tags:
 type:
 endef
+define ~tail
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::
+endef
 id: date != date -u +'%F %FT%TZ'
 id: day  := $(firstword $(date))
 id: id   := $(lastword $(date))
-id: head := $~
+id: head := $(~head)
+id: tail := $(~tail)
 id: file := $(id.d)/$(subst :,_,$(id)).md
-id: phony; @echo -e '$(head)\n---' > $(file)
+id: phony; @echo -e '$(head)\n---\n\n$(tail)' > $(file)
 
 tmp.t := tmp
 json.t := json
