@@ -19,3 +19,4 @@ Try to use zettelkasten via minimal MD and pandoc
 - 2020-06-23 [Various unicode character](id/2020-06-23T11_02_50Z.md)
 - 2020-06-23 [Use grex](id/2020-06-23T13_50_48Z.md)
 - 2020-06-23 [Install rust](id/2020-06-23T13_51_47Z.md)
+- 2020-06-24 [GPG double key trap](id/2020-06-24T12_32_39Z.md)
