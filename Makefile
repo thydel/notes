@@ -85,7 +85,8 @@ $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
 $~: $(id.d)/%.md $(json.t)/.stone $(lib.d)/meta.json $(wip.l); $(cmd)
 
 json.f := $(tmp.t)/all.json
-$(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) > $@
+$(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
+$(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) | $(sort) > $@
 json: phony $(json.f)
 
 ~ := README.md
