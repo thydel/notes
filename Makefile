@@ -55,6 +55,13 @@ id: tail := $(~tail)
 id: file := $(id.d)/$(subst :,_,$(id)).md
 id: phony; @echo -e '$(head)\n---\n\n$(tail)' > $(file)
 
+~ := fixtail
+$~: list := grep -L indent-tabs-mode id/*.md
+$~: tail := $(~tail)
+$~: add  := (echo; echo "$(tail)") | cat >> {}
+$~: $~   := $(list) | xargs -i echo '$(add)'
+$~: phony; @$($@)
+
 tmp.t := tmp
 json.t := json
 title.t := title
