@@ -71,6 +71,7 @@ tmp: phony $(patsubst %, %/.stone, $(tmpdir.s))
 
 md.s := $(sort $(wildcard $(id.d)/*-*.md))
 json.s := $(md.s:$(id.d)/%.md=$(json.t)/%.json)
+json-links.s := $(md.s:$(id.d)/%.md=$(json.t)/%-links.json)
 
 $(lib.d)/meta.json: $(lib.d)/.stone; echo '$$meta-json$$' > $@
 
@@ -88,6 +89,22 @@ json.f := $(tmp.t)/all.json
 $(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
 $(json.f): $(tmp.t)/.stone $(json.s); cat $(call cdr.l, $^) | $(sort) > $@
 json: phony $(json.f)
+
+~ := $(json.t)/%-links.json
+$~: md = $<
+$~: json = $@
+$~: file = $(notdir $<)
+$~: base = $(basename $(file))
+$~: id = $(subst _,:,$(base))
+$~: jq.link = { url: .[0], label: .[1] }
+$~: jq.links = [.[1] | .. | select(type == "object" and .t == "Link") | .c[2]] | map($(jq.link))
+$~: jq  = { id: "$(id)", links: $(jq.links) }
+$~: cmd = pandoc -s -t json $(md) | jq '$(jq)' > $(json)
+$~: $(id.d)/%.md $(json.t)/.stone$(wip.l); $(cmd)
+
+json-links.f := $(tmp.t)/links.json
+$(json-links.f): $(tmp.t)/.stone $(json-links.s); cat $(call cdr.l, $^) > $@
+json-links: phony $(json-links.f)
 
 ~ := README.md
 $~: jq := "- \(.date) [\(.title)]($(id.d)/\(.file))"
