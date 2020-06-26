@@ -137,6 +137,8 @@ link: $~ $(tmp.t)/.stone phony
 main: phony README.md
 all: phony main title link
 
+try: phony; pandoc $(lastword $(md.s)) -t markdown_github --filter lib/try.sh
+
 define .gitignore
 $(call map.l, echo €1/;, $(tmpdir.s))
 echo .stone
