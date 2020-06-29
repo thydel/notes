@@ -22,7 +22,7 @@ SHELL := $(shell which bash)
 -: - := $(and $(or $~,$(error not in a git dir)),)
 
 . != git rev-parse --show-toplevel
-VPATH := $.
+#VPATH := $.
 
 any.l := lib func
 any.d := relative dir path
@@ -30,6 +30,7 @@ any.t := relative tmp dir path
 any.f := relative file path
 any.p := list of path
 any.s := list of name, var, basename, ...
+any.m := a pattern
 
 € = $(subst €,$$,$1)
 
@@ -45,6 +46,15 @@ $(strip
         $(call eq.l, $(origin $_), file),
         $(call eq.l, $(suffix $_), .$(strip $1))),
       $_)))
+endef
+
+define import.l
+$(strip
+  $(eval ~ := $(strip $1))
+  $(eval 3 ?=)
+  $(if $3,
+    $(eval $~: - := $$(eval $3 := $$($(strip $2)))),
+    $(foreach _, $2, $(eval $~: - := $$(eval $~.$_ := $$($_))))))
 endef
 
 top.d := new
@@ -75,7 +85,9 @@ $~: tail := $(~tail)
 $~: file := $(id.d)/$(subst :,_,$(id)).md
 $~: phony $(id.d)/.stone; @ cd $.; echo -e '$(head)\n---\n\n$(tail)' > $(file)
 
-md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md'
+tmp.t := $(top.d)/spl/tmp
+
+md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md' | grep -v $(tmp.t)
 
 json.s :=
 ~ =
@@ -89,6 +101,8 @@ $(call map.l, €(call ~, €1), $(md.p))
 lib.d := lib
 json.d := $(top.d)/spl/json
 
+#vpath %.json $(json.d)
+
 json.p := $(json.s:%=$(json.d)/%)
 
 ~ := $(json.d)/%.json
@@ -96,13 +110,10 @@ $~: md = $(subst $./,,$<)
 $~: json = $@
 $~: file = $(notdir $<)
 $~: base = $(basename $(file))
-$~: id = $(subst _,:,$(base))
-$~: jq = . + { file: "$(md)", id: "$(id)" }
+$~: jq = . + { file: "$(md)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
 $~: $$($$(@F)) $(json.d)/.stone $./.stone; @cd $.; echo : $(json); $(cmd)
 jsons: $(json.p)
-
-tmp.t := $(top.d)/spl/tmp
 
 json.f := $(tmp.t)/all.json
 $(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
@@ -111,12 +122,44 @@ json: phony $(json.f)
 
 ~ := ren
 $~: jq :=
-$~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^a-z]"; "")) | join("-");
+$~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^[:alnum:]]"; "")) | join("-");
 $~: jq += "$(top.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
 $~: jq += | if .file == €futur then empty else
 $~: jq += "cd $.; mkdir -p $(top.d)/\(.type); mv \(.file) \(€futur); touch $(json.d)/.stone" end
 $~: $~ := < $(json.f) jq -r '$(call €,$(jq))'
 $~: $(json.f); @cd $.; $($@)
+
+χ := \\"#"
+quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
+
+σ :=  # Non breaking space
+
+~ := $(tmp.t)/link.md
+$~: jq := map($(call quote.l,"[\(.id)]: \(.file) «\(.id) \(.title)»"))
+$~: jq += + [""] +
+$~: jq += map("[§$(σ)\(.title)][\(.id)]")
+$~: jq += | .[]
+$~: $~ := jq -sr $$'$(jq)' $(json.f)
+$~: $(json.f); $($@) > $@
+link.f := $~
+link: $~ $(tmp.t)/.stone phony
+
+~ := fixlink
+$~: id := ^\[§[[:alnum:]:-]*\]:
+$~: list := grep -l '$(id)' $(md.p)
+$~: awk  = BEGIN { while((getline < "$<") > 0) { t[€1] = €0 } }
+$~: awk += /$(id)/ { €0 = t[€1]; print; next }
+$~: awk += 1
+$~: inplace := -i inplace -v inplace::suffix=.bak # wait for awk 5
+$~: inplace := -i inplace -v INPLACE_SUFFIX=.bak
+$~: $~ = $(list) | xargs -i echo awk $(inplace) \''$(call €,$(awk))'\' {}
+$~: $(link.f) phony; @cd $.; $($@)
+
+$(call import.l, fixlink, id)
+~ := showlink
+$~: id := $(fixlink.id)
+$~: $~ := grep '$(id)' $(md.p)
+$~: $(link.f) phony; @cd $.; $($@)
 
 main: phony;
 
