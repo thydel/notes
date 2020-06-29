@@ -24,22 +24,70 @@ SHELL := $(shell which bash)
 . != git rev-parse --show-toplevel
 VPATH := $.
 
+any.l := lib func
+any.d := relative dir path
+any.t := relative tmp dir path
+any.f := relative file path
+any.p := list of path
+any.s := list of name, var, basename, ...
+
+€ = $(subst €,$$,$1)
+
 eq.l = $(and $(findstring $(strip $1),$(strip $2)),$(findstring $(strip $2),$(strip $1)))
 cdr.l = $(filter-out $(firstword $1), $1)
 map.l = $(eval λ = $(subst €,$$,$1))$(foreach _,$2,$(call λ,$_))
 
-md != cd $.; find spl -type f -name '*.md'
+define varbysuff.l
+$(strip
+  $(foreach _, $(.VARIABLES),
+    $(if
+      $(and
+        $(call eq.l, $(origin $_), file),
+        $(call eq.l, $(suffix $_), .$(strip $1))),
+      $_)))
+endef
 
+top.d := new
+id.d := $(top.d)/id
+
+tmpdir.s := $(call map.l, €(€1), $(call varbysuff.l, t))
+tmp: phony $(patsubst %, %/.stone, $(tmpdir.s))
+
+define ~head
+---
+title:
+date: $(day)
+id: "§$(id)"
+tags:
+type:
+endef
+define ~tail
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::
+endef
+~ := new
+$~: date != date -u +'%F %FT%TZ'
+$~: day  := $(firstword $(date))
+$~: id   := $(lastword $(date))
+$~: head := $(~head)
+$~: tail := $(~tail)
+$~: file := $(id.d)/$(subst :,_,$(id)).md
+$~: phony $(id.d)/.stone; @ cd $.; echo -e '$(head)\n---\n\n$(tail)' > $(file)
+
+md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md'
+
+json.s :=
 ~ =
 ~ += $(eval name := $(basename $(notdir $1)).json)
 ~ += $(eval $(name) := $1)
 ~ += $(eval json.s += $(name))
-$(call map.l, €(call ~, €1), $(md))
+$(call map.l, €(call ~, €1), $(md.p))
 
 .SECONDEXPANSION:
 
 lib.d := lib
-json.d := spl/json
+json.d := $(top.d)/spl/json
 
 json.p := $(json.s:%=$(json.d)/%)
 
@@ -51,20 +99,32 @@ $~: base = $(basename $(file))
 $~: id = $(subst _,:,$(base))
 $~: jq = . + { file: "$(md)", id: "$(id)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
-$~: $$($$(@F)); (cd $.; $(cmd))
+$~: $$($$(@F)) $(json.d)/.stone $./.stone; @cd $.; echo : $(json); $(cmd)
 jsons: $(json.p)
 
-tmp.t := spl/tmp
+tmp.t := $(top.d)/spl/tmp
 
 json.f := $(tmp.t)/all.json
 $(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
-$(json.f): $(tmp.t)/.stone $(json.p); cd $.; cat $(call cdr.l, $^) | $(sort) > $@
+$(json.f): $(tmp.t)/.stone $(json.p); @cd $.; echo : $(@); cat $(call cdr.l, $^) | $(sort) > $@
 json: phony $(json.f)
+
+~ := ren
+$~: jq :=
+$~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^a-z]"; "")) | join("-");
+$~: jq += "$(top.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
+$~: jq += | if .file == €futur then empty else
+$~: jq += "cd $.; mkdir -p $(top.d)/\(.type); mv \(.file) \(€futur); touch $(json.d)/.stone" end
+$~: $~ := < $(json.f) jq -r '$(call €,$(jq))'
+$~: $(json.f); @cd $.; $($@)
 
 main: phony;
 
 %/.stone:; cd $.; mkdir -p $(@D); touch $@
 .PRECIOUS: %/.stone
+
+.stone:; cd $.; touch $@
+stone: phony; cd $.; touch .$@
 
 # Local Variables:
 # indent-tabs-mode: nil
