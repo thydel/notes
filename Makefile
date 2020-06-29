@@ -19,6 +19,8 @@ eq.l = $(and $(findstring $(strip $1),$(strip $2)),$(findstring $(strip $2),$(st
 cdr.l = $(filter-out $(firstword $1), $1)
 map.l = $(eval λ = $(subst €,$$,$1))$(foreach _,$2,$(call λ,$_))
 
+€ = $(subst €,$$,$1)
+
 define varbysuff.l
 $(strip
   $(foreach _, $(.VARIABLES),
@@ -63,6 +65,20 @@ $~: $~   := $(list) | xargs -i echo '$(add)'
 $~: phony; @$($@)
 
 tmp.t := tmp
+
+# € is quoted $
+# greek κ is quoted '
+# « and » are quoted "
+# greek ν is quoted NL
+~ := fixhead
+$~: list := grep -L ^id: id/*.md | tee $(tmp.t)/$~ | xargs basename -s .md
+$~: list += | tr _ : | sed -e s/^/§/ | paste $(tmp.t)/$~ -
+$~: ed   := /^date:/aνid: «%s»ν.νwq
+$~: awk  := { printf "echo -e κ$(ed)κ | ed %s\n", €2, €1 }
+$~: sed  := sed -e "s/κ/'/g" -e 's/[«»]/"/g' -e 's/ν/\\n/g'
+$~: $~   := $(list) | awk '$(call €,$(awk))' | $(sed)
+$~: phony; @$($@)
+
 json.t := json
 title.t := title
 
