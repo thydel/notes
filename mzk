@@ -22,30 +22,38 @@ SHELL := $(shell which bash)
 -: - := $(and $(or $~,$(error not in a git dir)),)
 
 . != git rev-parse --show-toplevel
-#VPATH := $.
 
+ifdef USE_GUILE
+$(and $(or $(filter guile, $(.FEATURES)),$(error intall make-guile)),)
+$(guile (chdir (gmk-expand "$.")))
+endif
+
+ifdef NEVER
 any.l := lib func
 any.d := relative dir path
-any.t := relative tmp dir path
+any.o := relative out dir path
 any.f := relative file path
 any.p := list of path
 any.s := list of name, var, basename, ...
 any.m := a pattern
+endif
 
 € = $(subst €,$$,$1)
 
 eq.l = $(and $(findstring $(strip $1),$(strip $2)),$(findstring $(strip $2),$(strip $1)))
 cdr.l = $(filter-out $(firstword $1), $1)
 map.l = $(eval λ = $(subst €,$$,$1))$(foreach _,$2,$(call λ,$_))
+andb.l = $(if $(strip $1),$(if $(strip $2),T),)
 
 define varbysuff.l
 $(strip
-  $(foreach _, $(.VARIABLES),
-    $(if
-      $(and
-        $(call eq.l, $(origin $_), file),
-        $(call eq.l, $(suffix $_), .$(strip $1))),
-      $_)))
+  $(foreach v, $(.VARIABLES),
+    $(foreach s, $1,
+      $(if
+        $(call andb.l,
+          $(call eq.l, $(origin $v), file),
+          $(call eq.l, $(suffix $v), .$(strip $s))),
+        $v))))
 endef
 
 define import.l
@@ -57,11 +65,8 @@ $(strip
     $(foreach _, $2, $(eval $~: - := $$(eval $~.$_ := $$($_))))))
 endef
 
-top.d := new
-id.d := $(top.d)/id
-
-tmpdir.s := $(call map.l, €(€1), $(call varbysuff.l, t))
-tmp: phony $(patsubst %, %/.stone, $(tmpdir.s))
+top.d := top2
+new.d := $(top.d)/new
 
 define ~head
 ---
@@ -82,12 +87,15 @@ $~: day  := $(firstword $(date))
 $~: id   := $(lastword $(date))
 $~: head := $(~head)
 $~: tail := $(~tail)
-$~: file := $(id.d)/$(subst :,_,$(id)).md
-$~: phony $(id.d)/.stone; @ cd $.; echo -e '$(head)\n---\n\n$(tail)' > $(file)
+$~: file := $(new.d)/$(subst :,_,$(id)).md
+$~: show := echo : $(date)
+$~: cmd  := echo -e '$(head)\n---\n\n$(tail)'
+$~: rcp   = cd $.; $(show); $(cmd) > $(file)
+$~: phony | $(new.d); @$(rcp)
 
-tmp.t := $(top.d)/spl/tmp
+json2any.o := $(top.d)/tmp/json2any
 
-md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md' | grep -v $(tmp.t)
+md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md' | grep -v $(json2any.o)
 
 json.s :=
 ~ =
@@ -99,33 +107,40 @@ $(call map.l, €(call ~, €1), $(md.p))
 .SECONDEXPANSION:
 
 lib.d := lib
-json.d := $(top.d)/spl/json
+md2json.o := $(top.d)/tmp/md2json
 
-#vpath %.json $(json.d)
+# For all variables ending in .[do] used as ORDER-ONLY-PREREQUISITES
+$(call map.l, €(€1), $(call varbysuff.l, d o)):; mkdir -p $@
 
-json.p := $(json.s:%=$(json.d)/%)
+#VPATH = $.
+vpath %.md $.
+vpath %.json $.
 
-~ := $(json.d)/%.json
+md2json.p := $(json.s:%=$(md2json.o)/%)
+
+~ := $(md2json.o)/%.json
 $~: md = $(subst $./,,$<)
 $~: json = $@
 $~: file = $(notdir $<)
 $~: base = $(basename $(file))
 $~: jq = . + { file: "$(md)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
-$~: $$($$(@F)) $(json.d)/.stone $./.stone; @cd $.; echo : $(json); $(cmd)
-jsons: $(json.p)
+$~: $$($$(@F)) $./.stone | $(md2json.o); @cd $.; echo : $(json); $(cmd)
+jsons: $(md2json.p)
 
-json.f := $(tmp.t)/all.json
+json.f := $(json2any.o)/all.json
 $(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
-$(json.f): $(tmp.t)/.stone $(json.p); @cd $.; echo : $(@); cat $(call cdr.l, $^) | $(sort) > $@
+$(json.f): $(md2json.p) | $(json2any.o); @cd $.; echo : $(@); cat $^ | $(sort) > $@
 json: phony $(json.f)
+
+ren.d := type
 
 ~ := ren
 $~: jq :=
 $~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^[:alnum:]]"; "")) | join("-");
-$~: jq += "$(top.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
+$~: jq += "$(top.d)/$(ren.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
 $~: jq += | if .file == €futur then empty else
-$~: jq += "cd $.; mkdir -p $(top.d)/\(.type); mv \(.file) \(€futur); touch $(json.d)/.stone" end
+$~: jq += "cd $.; mkdir -p $(top.d)/$(ren.d)/\(.type); mv \(.file) \(€futur); touch $(md2json.o)/.stone" end
 $~: $~ := < $(json.f) jq -r '$(call €,$(jq))'
 $~: $(json.f); @cd $.; $($@)
 
@@ -134,15 +149,15 @@ quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
 
 σ :=  # Non breaking space
 
-~ := $(tmp.t)/link.md
+~ := $(json2any.o)/link.md
 $~: jq := map($(call quote.l,"[\(.id)]: \(.file) «\(.id) \(.title)»"))
 $~: jq += + [""] +
 $~: jq += map("[§$(σ)\(.title)][\(.id)]")
 $~: jq += | .[]
 $~: $~ := jq -sr $$'$(jq)' $(json.f)
-$~: $(json.f); $($@) > $@
+$~: $(json.f); cd $.; $($@) > $@
 link.f := $~
-link: $~ $(tmp.t)/.stone phony
+link: phony $~ | $(json2any.o)
 
 ~ := fixlink
 $~: id := ^\[§[[:alnum:]:-]*\]:
@@ -162,9 +177,6 @@ $~: $~ := grep '$(id)' $(md.p)
 $~: $(link.f) phony; @cd $.; $($@)
 
 main: phony;
-
-%/.stone:; cd $.; mkdir -p $(@D); touch $@
-.PRECIOUS: %/.stone
 
 .stone:; cd $.; touch $@
 stone: phony; cd $.; touch .$@
