@@ -23,10 +23,9 @@ SHELL := $(shell which bash)
 
 . != git rev-parse --show-toplevel
 
-ifdef USE_GUILE
-$(and $(or $(filter guile, $(.FEATURES)),$(error intall make-guile)),)
-$(guile (chdir (gmk-expand "$.")))
-endif
+$(if $(filter guile, $(.FEATURES)),\
+  $(guile (chdir (gmk-expand "$."))),\
+  $(if $(filter $(PWD),$.),,$(error $(MAKEFILE_LIST) -C $. $(MAKEFLAGS) $(MAKECMDGOALS))))
 
 ifdef NEVER
 any.l := lib func
@@ -65,7 +64,7 @@ $(strip
     $(foreach _, $2, $(eval $~: - := $$(eval $~.$_ := $$($_))))))
 endef
 
-top.d := top2
+top.d := top
 new.d := $(top.d)/new
 
 define ~head
@@ -109,14 +108,16 @@ $(call map.l, €(call ~, €1), $(md.p))
 lib.d := lib
 md2json.o := $(top.d)/tmp/md2json
 
-# For all variables ending in .[do] used as ORDER-ONLY-PREREQUISITES
-$(call map.l, €(€1), $(call varbysuff.l, d o)):; mkdir -p $@
-
 #VPATH = $.
 vpath %.md $.
 vpath %.json $.
 
 md2json.p := $(json.s:%=$(md2json.o)/%)
+
+ren.d := $(top.d)/type
+
+# For all variables ending in .[do] used as ORDER-ONLY-PREREQUISITES
+$(call map.l, €(€1), $(call varbysuff.l, d o)):; mkdir -p $@
 
 ~ := $(md2json.o)/%.json
 $~: md = $(subst $./,,$<)
@@ -131,18 +132,23 @@ jsons: $(md2json.p)
 json.f := $(json2any.o)/all.json
 $(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
 $(json.f): $(md2json.p) | $(json2any.o); @cd $.; echo : $(@); cat $^ | $(sort) > $@
-json: phony $(json.f)
-
-ren.d := type
+json: phony $(json.f) | $(md2json.o)
 
 ~ := ren
+$~: jq.select := map(select(.type != ""))
+#$~: jq.mkdir := "mkdir -p $./$(ren.d)",
+$~: jq.mkdir :=
+$~: jq.mkdir += "cd $./$(ren.d)",
+$~: jq.mkdir += (map(.type) | unique | ("mkdir -p " + join(" ")))
+$~: jq.mv := "cd $.",
+$~: jq.mv += (.[] | "$(ren.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
+$~: jq.mv += | if .file == €futur then empty else
+$~: jq.mv += "mv \(.file) \(€futur)" end)
 $~: jq :=
 $~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^[:alnum:]]"; "")) | join("-");
-$~: jq += "$(top.d)/$(ren.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
-$~: jq += | if .file == €futur then empty else
-$~: jq += "cd $.; mkdir -p $(top.d)/$(ren.d)/\(.type); mv \(.file) \(€futur); touch $(md2json.o)/.stone" end
-$~: $~ := < $(json.f) jq -r '$(call €,$(jq))'
-$~: $(json.f); @cd $.; $($@)
+$~: jq += $(jq.select) | ($(jq.mkdir), ($(jq.mv)))
+$~: $~ := < $(json.f) jq -sr '$(call €,$(jq))'
+$~: $(json.f) | $(ren.d); @cd $.; $($@)
 
 χ := \\"#"
 quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))

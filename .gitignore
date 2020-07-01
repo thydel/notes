@@ -2,3 +2,4 @@ json/
 title/
 tmp/
 .stone
+*.bak
