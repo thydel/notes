@@ -67,6 +67,9 @@ endef
 top.d := top
 new.d := $(top.d)/new
 
+|F = $(notdir $|)
+$(top.d)/.gitignore: | $(new.d); echo $(|F) > $@
+
 define ~head
 ---
 title:
@@ -90,7 +93,7 @@ $~: file := $(new.d)/$(subst :,_,$(id)).md
 $~: show := echo : $(date)
 $~: cmd  := echo -e '$(head)\n---\n\n$(tail)'
 $~: rcp   = cd $.; $(show); $(cmd) > $(file)
-$~: phony | $(new.d); @$(rcp)
+$~: phony $(top.d)/.gitignore | $(new.d); @$(rcp)
 
 json2any.o := $(top.d)/tmp/json2any
 
