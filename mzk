@@ -103,6 +103,28 @@ $~: cmd  := echo -e '$(head)\n---\n\n$(tail)'
 $~: rcp   = cd $.; $(show); $(cmd) > $(file)
 $~: phony $(top.d)/.gitignore | $(new.d); @$(rcp)
 
+ifdef ONCE
+~ := fixtail
+$~: list := grep -L indent-tabs-mode id/*.md
+$~: tail := $(~tail)
+$~: add  := (echo; echo "$(tail)") | cat >> {}
+$~: $~   := $(list) | xargs -i echo '$(add)'
+$~: phony; @$($@)
+
+# € is quoted $
+# greek κ is quoted '
+# « and » are quoted "
+# greek ν is quoted NL
+~ := fixhead
+$~: list := grep -L ^id: id/*.md | tee $(tmp.t)/$~ | xargs basename -s .md
+$~: list += | tr _ : | sed -e s/^/§/ | paste $(tmp.t)/$~ -
+$~: ed   := /^date:/aνid: «%s»ν.νwq
+$~: awk  := { printf "echo -e κ$(ed)κ | ed %s\n", €2, €1 }
+$~: sed  := sed -e "s/κ/'/g" -e 's/[«»]/"/g' -e 's/ν/\\n/g'
+$~: $~   := $(list) | awk '$(call €,$(awk))' | $(sed)
+$~: phony; @$($@)
+endif
+
 json2any.o := $(top.d)/tmp/json2any
 
 md.p != cd $.; test -d $(top.d) && find $(top.d) -type f -name '*.md' | grep -v $(json2any.o)
@@ -213,6 +235,8 @@ $~: $~ := grep '$(id)' $(md.p)
 $~: $(link.f) phony; @cd $.; $($@)
 
 main: phony;
+
+try: phony; pandoc $(lastword $(md.p)) -t markdown_github --filter lib/try.sh
 
 .stone:; cd $.; touch $@
 stone: phony; cd $.; touch .$@
