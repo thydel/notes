@@ -74,9 +74,10 @@ endef
 
 top.d := top
 new.d := $(top.d)/new
+ren.d := $(top.d)/type
 
 |F = $(notdir $|)
-$(top.d)/.gitignore: | $(new.d); echo $(|F) > $@
+$(top.d)/.gitignore: | $(ren.d); echo -e '/*\n!$(|F)' > $@
 
 define ~head
 ---
@@ -146,8 +147,6 @@ vpath %.md $.
 vpath %.json $.
 
 md2json.p := $(json.s:%=$(md2json.o)/%)
-
-ren.d := $(top.d)/type
 
 # For all variables ending in .[do] used as ORDER-ONLY-PREREQUISITES
 $(call map.l, €(€1), $(call varbysuff.l, d o)):; mkdir -p $@
@@ -234,7 +233,7 @@ $~: id := $(fixlink.id)
 $~: $~ := grep '$(id)' $(md.p)
 $~: $(link.f) phony; @cd $.; $($@)
 
-main: phony;
+main: phony README;
 
 try: phony; pandoc $(lastword $(md.p)) -t markdown_github --filter lib/try.sh
 
