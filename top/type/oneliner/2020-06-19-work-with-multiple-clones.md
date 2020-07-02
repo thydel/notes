@@ -8,7 +8,7 @@ type: oneliner
 links: [ "§2020-06-12T11:11:38Z" ]
 ---
 
-[§2020-06-12T11:11:38Z]: top/type/howto/2020-06-12-work-with-multiple-remotes.md "§2020-06-12T11:11:38Z Work with multiple remotes"
+/[§2020-06-12T11:11:38Z]: top/type/howto/2020-06-12-work-with-multiple-remotes.md "§2020-06-12T11:11:38Z Work with multiple remotes"
 
 After pushing to multiple remotes I usually also want to update all
 remote nodes using these repos to keep everything in sync.

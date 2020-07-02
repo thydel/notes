@@ -20,14 +20,14 @@ Used to denote a zettelkasten id in markdown file, e.g.
 this paragraph mentioning [§ Use greek letters][§2020-06-20T15:23:57Z]
 is made with:
 
-[§2020-06-20T15:23:57Z]: top/type/oneliner/2020-06-20-use-greek-letters.md "§2020-06-20T15:23:57Z Use greek letters"
+/[§2020-06-20T15:23:57Z]: top/type/oneliner/2020-06-20-use-greek-letters.md "§2020-06-20T15:23:57Z Use greek letters"
 
 ```markdown
 Used to denote a zettelkasten id in markdown file, e.g.
 this paragraph mentioning [§ Use greek letters][§2020-06-20T15:23:57Z]
 is made with:
 
-[§2020-06-20T15:23:57Z]: top/type/oneliner/2020-06-20-use-greek-letters.md "§2020-06-20T15:23:57Z Use greek letters"
+/[§2020-06-20T15:23:57Z]: top/type/oneliner/2020-06-20-use-greek-letters.md "§2020-06-20T15:23:57Z Use greek letters"
 ```
 
 This will allow simple extraction of zettelkasten links.

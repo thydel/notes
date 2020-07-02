@@ -54,7 +54,7 @@ $ f 8 | grex -g $stdin | tee /dev/fd/2 | tr -d '^$' | grex -gr $stdin | tr -d '(
 ```
 
 [grex]: https://github.com/pemistahl/grex "github.com"
-[§2020-06-23T13:50:48Z]: top/type/tool/2020-06-23-use-grex.md "§2020-06-23T13:50:48Z Use grex"
+/[§2020-06-23T13:50:48Z]: top/type/tool/2020-06-23-use-grex.md "§2020-06-23T13:50:48Z Use grex"
 
 [Local Variables:]::
 [indent-tabs-mode: nil]::
