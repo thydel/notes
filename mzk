@@ -235,6 +235,11 @@ $~: $(link.f) phony; @cd $.; $($@)
 
 main: phony README;
 
+~ := commit
+$~: jq := .[0].title | "git -C $. add -n .\ngit -C $. add .\ngit -C $. commit -m \'Adds \\"\\(.)\\"\'"
+$~: $~ := jq -sr $$'$(jq)'
+$~: $(json.f); @< $< $($@)
+
 try: phony; pandoc $(lastword $(md.p)) -t markdown_github --filter lib/try.sh
 
 .stone:; cd $.; touch $@
