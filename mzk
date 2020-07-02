@@ -159,7 +159,7 @@ quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
 σ :=  # Non breaking space
 
 ~ := $(json2any.o)/link.md
-$~: jq := map($(call quote.l,"[\(.id)]: \(.file) «\(.id) \(.title)»"))
+$~: jq := map($(call quote.l,"[\(.id)]: /\(.file) «\(.id) \(.title)»"))
 $~: jq += + [""] +
 $~: jq += map("[§$(σ)\(.title)][\(.id)]")
 $~: jq += | .[]
