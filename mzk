@@ -162,7 +162,7 @@ $~: $$($$(@F)) $./.stone | $(md2json.o); @cd $.; echo : $(json); $(cmd)
 jsons: $(md2json.p)
 
 json.f := $(json2any.o)/all.json
-$(json.f): sort := jq -s 'sort_by(.date)|reverse|.[]'
+$(json.f): sort := jq -s 'sort_by(.id)|reverse|.[]'
 $(json.f): $(md2json.p) | $(json2any.o); @cd $.; echo : $(@); cat $^ | $(sort) > $@
 json: phony $(json.f) | $(md2json.o)
 
