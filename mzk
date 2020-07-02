@@ -55,13 +55,21 @@ $(strip
         $v))))
 endef
 
+/ :=
+$(call /, Will help to make comments)
+
 define import.l
 $(strip
-  $(eval ~ := $(strip $1))
-  $(eval 3 ?=)
+                              $(call /, import var €2 from target €1 in var €3)
+                              $(call /, or import all €2 vars in €1 (or €(€1)) as target.var)
+  $(eval - := $(strip $1))    $(call /, The name of a target)
+  $(eval ~ := $(or $($-),$-)) $(call /, Or a var containing the name of a target)
+  $(eval 3 ?=)                $(call /, Arg 3 default to empty (avoid undef))
   $(if $3,
     $(eval $~: - := $$(eval $3 := $$($(strip $2)))),
-    $(foreach _, $2, $(eval $~: - := $$(eval $~.$_ := $$($_))))))
+    $(foreach _, $2, $(eval $~: - := $$(eval $-.$_ := $$($_))))
+  )
+)
 endef
 
 top.d := top
@@ -138,10 +146,8 @@ $(json.f): $(md2json.p) | $(json2any.o); @cd $.; echo : $(@); cat $^ | $(sort) >
 json: phony $(json.f) | $(md2json.o)
 
 ~ := ren
-$~: jq.select := map(select(.type != ""))
-#$~: jq.mkdir := "mkdir -p $./$(ren.d)",
-$~: jq.mkdir :=
-$~: jq.mkdir += "cd $./$(ren.d)",
+$~: jq.select := map(select(.type != "" and .title != ""))
+$~: jq.mkdir := "cd $./$(ren.d)",
 $~: jq.mkdir += (map(.type) | unique | ("mkdir -p " + join(" ")))
 $~: jq.mv := "cd $.",
 $~: jq.mv += (.[] | "$(ren.d)/\(.type)/\(.date)-\(.title | section_id).md" as €futur
@@ -158,15 +164,36 @@ quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
 
 σ :=  # Non breaking space
 
+link2md.jq.reference := [\(.id)]: /\(.file) «\(.id) \(.title)»
+link2md.jq.bare      := [§$(σ)\(.title)][\(.id)]
+link2md.jq.readme    := - \(.date) $(link2md.jq.bare)
+
+$(call import.l, ren, jq.select)
+define link2md.jq
+$(ren.jq.select)
+| map($(call quote.l,"$(link2md.jq.reference)"))
++ [""] + map("$(strip $1)") | .[]
+endef
+
+link2md.sh = jq -sr $$'$(strip $(call link2md.jq, $1))'
+
 ~ := $(json2any.o)/link.md
-$~: jq := map($(call quote.l,"[\(.id)]: /\(.file) «\(.id) \(.title)»"))
-$~: jq += + [""] +
-$~: jq += map("[§$(σ)\(.title)][\(.id)]")
-$~: jq += | .[]
-$~: $~ := jq -sr $$'$(jq)' $(json.f)
-$~: $(json.f); cd $.; $($@) > $@
+$~: $~ := $(call link2md.sh, $(link2md.jq.bare))
+$~: $(json.f); < $< $($@) > $@
 link.f := $~
 link: phony $~ | $(json2any.o)
+
+~ := $(json2any.o)/readme.md
+$~: $~ := $(call link2md.sh, $(link2md.jq.readme))
+$~: $(json.f); < $< $($@) > $@
+readme.f := $~
+readme: phony $~ | $(json2any.o)
+
+~ := README.md
+$~: $~ := echo -e '\# notes\n\nTry to use zettelkasten via minimal MD and pandoc\n';
+$~: $~ += cat
+$~: $(readme.f); ($($@)) < $< > $@
+README: phony $~
 
 ~ := fixlink
 $~: id := ^\[§[[:alnum:]:-]*\]:
