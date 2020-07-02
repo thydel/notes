@@ -1,0 +1,28 @@
+---
+title: Missing gpg key for elpa
+date: 2020-06-23
+id: "§2020-06-23T09:27:39Z"
+tags: [ emacs ]
+type: fix
+---
+
+# The symptom
+
+```
+Failed to verify signature archive-contents.sig:
+No public key for 066DAFCB81E42C40 created at 2020-06-23T11:05:02+0200 using RSA
+Command output:
+gpg: Signature made Tue 23 Jun 2020 11:05:02 AM CEST
+gpg:                using RSA key C433554766D3DDC64221BFAA066DAFCB81E42C40
+gpg: Can't check signature: No public key
+```
+
+# The fix
+
+```bash
+gpg --homedir ~/.emacs.d/elpa/gnupg --receive-keys 066DAFCB81E42C40
+```
+
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::

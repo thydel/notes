@@ -1,0 +1,65 @@
+---
+title: Compile latest git version
+date: 2020-06-14
+id: "§2020-06-14T17:57:08Z"
+tags: git
+type: howto
+---
+
+# If on a debian9
+
+
+```bash
+sudo apt-get purge libssl-dev
+sudo apt-get install libssl1.0-dev
+sudo aptitude install docbook2x zlib1g-dev
+```
+
+# Get a compile branch
+
+## First time
+
+Get it
+
+```bash
+git clone git@github.com:git/git.git
+```
+
+List versions
+
+```bash
+git -C git ls-remote --tags origin 'v2.2[2-9]*'
+```
+
+Make a compile branch from choosen version
+
+```bash
+git -C git checkout -b compile v2.26.1
+```
+
+## Next time
+
+From `git` dir
+
+```bash
+git checkout master
+git pull
+git ls-remote --tags origin 'v2.2[2-9]*'
+git branch -d compile
+git checkout -b compile v2.27.0 # Choose another version
+```
+
+# Compile and install
+
+As usual
+
+```bash
+make configure
+./configure --prefix=/usr/local
+make all doc info
+sudo make install install-doc install-html install-info
+```
+
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::

@@ -1,0 +1,101 @@
+---
+title: Use GitHub CLI with two contexts
+date: 2020-06-13
+id: "§2020-06-13T11:27:02Z"
+tags: git
+type: howto
+---
+
+# Why two contexts ?
+
+- Because I use different github accounts for *pro* and *perso* contexts
+- I have different `ssh` keys and `oauth` tokens for each context
+- In *pro* context I use `thyepi` github account to access `Epiconcept-Paris` repos
+- In *perso* context I use `thydel` github account
+- In each repo I use `core.sshCommand` to select the `ssh` key
+
+# What is the problem ?
+
+As `gh` uses a unique conf file (`~/.config/gh/hosts.yml`) for `user`
+and `oauth_token` We cant have a per repo `user` and `oauth_token`
+conf (like we do for `ssh` keys).
+
+# What is the solution ?
+
+- Get a different conf (not seen by `gh`) for each context
+- Wrap `gh` to symlink to correct conf
+
+# Install latest version
+
+See [releases](https://github.com/cli/cli/releases "github.com")
+
+```bash
+version=0.10.0
+file=gh_${version}_linux_amd64.deb
+url=https://github.com/cli/cli/releases/download/v${version}/${file}
+dir=/usr/local/dist
+curl -L $url --output $dir/${file}
+sudo gdebi --n $dir/${file}
+```
+
+# Init in current repo context
+
+Create a config (no `github` access)
+
+```bash
+gh config set git_protocol ssh
+```
+
+Authenticate. Require opening a browser window with a user matching
+repo
+
+```bash
+google-chrome-stable --profile-directory=Default&
+gh repo view
+```
+
+Contextualize the conf
+
+```bash
+owner=$(gh api repos/:owner/:repo | jq -r .owner.login)
+mv ~/.config/gh/hosts.yml ~/.config/gh/hosts.yml.$owner
+```
+
+Note
+
+> Before version 0.10.0 the `user` and `oauth_token` were in
+> `~/.config/gh/config.yml` instead of `~/.config/gh/hosts.yml`
+
+# Init in different owner repo context
+
+```bash
+google-chrome-stable --profile-directory='Profile 1'&
+gh repo view
+owner=$(gh api repos/:owner/:repo | jq -r .owner.login)
+mv ~/.config/gh/hosts.yml ~/.config/gh/hosts.yml.$owner
+```
+
+# Overload `gh` with a `bash` func
+
+```bash
+gh() { ln -sf hosts.yml.${GITHUB_OWNER:-Epiconcept-Paris} ~/.config/gh/hosts.yml; command gh "$@"; }
+```
+
+# Use in default `Epiconcept-Paris` context
+
+```bash
+gh issue status
+gh issue list -a thyepi -l Priority:High
+```
+
+# Use in `thydel` context
+
+```bash
+export GITHUB_OWNER=thydel
+gh repo view
+date | gh gist create
+```
+
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::

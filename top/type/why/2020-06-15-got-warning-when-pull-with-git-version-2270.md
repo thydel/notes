@@ -1,0 +1,48 @@
+---
+title: Got warning when pull with git version 2.27.0
+date: 2020-06-15
+id: "§2020-06-15T12:38:33Z"
+tags: git
+type: why
+---
+
+# The problem
+
+[Compile latest git version](2020-06-14T17_57_08Z.md), then
+
+```console
+$ git --version
+git version 2.27.0
+$ git pull
+warning: Pulling without specifying how to reconcile divergent branches is
+discouraged. You can squelch this message by running one of the following
+commands sometime before your next pull:
+
+  git config pull.rebase false  # merge (the default strategy)
+  git config pull.rebase true   # rebase
+  git config pull.ff only       # fast-forward only
+
+You can replace "git config" with "git config --global" to set a default
+preference for all repositories. You can also pass --rebase, --no-rebase,
+or --ff-only on the command line to override the configured default per
+invocation.
+
+Already up to date.
+```
+
+# The why
+
+See [pull: warn if the user didn't say whether to rebase or to merge][]
+
+[pull: warn if the user didn't say whether to rebase or to merge]:
+	https://public-inbox.org/git/20200304022931.2469455-1-alexhenrie24@gmail.com/ "public-inbox.org"
+
+# The fix
+
+```bash
+git config pull.rebase false
+```
+
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::

@@ -1,0 +1,75 @@
+---
+title: Extract thunderbird search folders
+date: 2020-06-18
+id: "§2020-06-18T08:51:11Z"
+tags: thunderbird
+type: journal
+---
+
+- Did a quick search for `thunderbird export filter`
+- Found no extensions, but found [how-to-export-and-import-message-filters-of-thunderbird][]
+- Learnt about [Mork][]
+- Did a quick search for `convert mork to json`
+- Found [morkdump][]
+
+Get [morkdump][]
+
+```bash
+wget https://gist.github.com/piroor/11277290/raw/85650377d97a3dc90a35d4ec1aec2239551acf2d/morkdump
+chmod +x morkdump
+mv morkdump /usr/local/bin
+```
+
+Follow [morkdump][] comments
+
+```bash
+curl -L http://cpanmin.us | perl - App::cpanminus
+cpan Mozilla::Mork
+cpan JSON
+```
+
+Try to follow [how-to-export-and-import-message-filters-of-thunderbird][]
+
+```bash
+find ~/.thunderbird/ -name msgFilterRules.dat
+```
+
+- I found nothing in `msgFilterRules.dat` files
+- In fact I use *search folders* and these are easy to find
+
+While in target `.thunderbird/$account/ImapMail/$serveur`
+
+```bash
+find INBOX.sbd -type f -name '*.msf' | xargs -i morkdump {} \
+	| jq -s 'flatten | map(select(has("searchStr"))) | .[] | { mailboxName, searchStr }'
+```
+
+Will output all search folders name and search string, e.g.
+
+```json
+{
+  "mailboxName": "MySQL Backup log",
+  "searchStr": "AND (subject,contains,MySQL Backup log)"
+}
+{
+  "mailboxName": "uptimerobot",
+  "searchStr": "AND (from,is,alert@uptimerobot.com)"
+}
+{
+  "mailboxName": "ERROR",
+  "searchStr": "AND (subject,contains,ERROR)"
+}
+```
+
+[how-to-export-and-import-message-filters-of-thunderbird]:
+	https://www.systutorials.com/how-to-export-and-import-message-filters-of-thunderbird/ "systutorials.com"
+
+[Mork]:
+	https://en.wikipedia.org/wiki/Mork_(file_format) "wikipedia.org"
+
+[morkdump]:
+	https://gist.github.com/piroor/11277290 "gist.github.com"
+
+[Local Variables:]::
+[indent-tabs-mode: nil]::
+[End:]::
