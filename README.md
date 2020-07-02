@@ -2,7 +2,7 @@
 
 Try to use zettelkasten via minimal MD and pandoc
 
-[§2020-07-02T18:59:19Z]: /top/new/2020-07-02T18_59_19Z.md "§2020-07-02T18:59:19Z Clean PATH from accumulated additions"
+[§2020-07-02T18:59:19Z]: /top/type/oneliner/2020-07-02-clean-path-from-accumulated-additions.md "§2020-07-02T18:59:19Z Clean PATH from accumulated additions"
 [§2020-07-02T11:55:26Z]: /top/type/fix/2020-07-02-missing-packages-for-ansible210-on-debian9.md "§2020-07-02T11:55:26Z Missing packages for ansible-2.10 on debian9"
 [§2020-06-24T19:38:38Z]: /top/type/oneliner/2020-06-24-generate-all-the-binary-number-from-0-to-2n.md "§2020-06-24T19:38:38Z Generate all the binary number from 0 to 2^n"
 [§2020-06-24T12:32:39Z]: /top/type/fix/2020-06-24-gpg-double-key-trap.md "§2020-06-24T12:32:39Z GPG double key trap"
