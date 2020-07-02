@@ -2,6 +2,7 @@
 
 Try to use zettelkasten via minimal MD and pandoc
 
+[§2020-07-02T11:55:26Z]: /top/type/fix/2020-07-02-missing-packages-for-ansible210-on-debian9.md "§2020-07-02T11:55:26Z Missing packages for ansible-2.10 on debian9"
 [§2020-06-24T12:32:39Z]: /top/type/fix/2020-06-24-gpg-double-key-trap.md "§2020-06-24T12:32:39Z GPG double key trap"
 [§2020-06-24T19:38:38Z]: /top/type/oneliner/2020-06-24-generate-all-the-binary-number-from-0-to-2n.md "§2020-06-24T19:38:38Z Generate all the binary number from 0 to 2^n"
 [§2020-06-23T09:27:39Z]: /top/type/fix/2020-06-23-missing-gpg-key-for-elpa.md "§2020-06-23T09:27:39Z Missing gpg key for elpa"
@@ -22,6 +23,7 @@ Try to use zettelkasten via minimal MD and pandoc
 [§2020-06-04T13:47:19Z]: /top/type/howto/2020-06-04-clone-remote-bare-git.md "§2020-06-04T13:47:19Z Clone remote bare git"
 [§2020-06-03T10:32:03Z]: /top/type/journal/2020-06-03-sshrsa-deprecation-notice.md "§2020-06-03T10:32:03Z ssh-rsa deprecation notice"
 
+- 2020-07-02 [§ Missing packages for ansible-2.10 on debian9][§2020-07-02T11:55:26Z]
 - 2020-06-24 [§ GPG double key trap][§2020-06-24T12:32:39Z]
 - 2020-06-24 [§ Generate all the binary number from 0 to 2^n][§2020-06-24T19:38:38Z]
 - 2020-06-23 [§ Missing gpg key for elpa][§2020-06-23T09:27:39Z]
