@@ -2,6 +2,7 @@
 
 Try to use zettelkasten via minimal MD and pandoc
 
+[§2020-07-03T12:53:19Z]: /top/type/debug/2020-07-03-debug-make-non-target-shell-invocation.md "§2020-07-03T12:53:19Z Debug Make non target SHELL invocation"
 [§2020-07-03T11:23:15Z]: /top/type/fix/2020-07-03-avoid-closing-all-my-emacs-frames.md "§2020-07-03T11:23:15Z Avoid closing all my emacs frames"
 [§2020-07-02T18:59:19Z]: /top/type/oneliner/2020-07-02-clean-path-from-accumulated-additions.md "§2020-07-02T18:59:19Z Clean PATH from accumulated additions"
 [§2020-07-02T11:55:26Z]: /top/type/fix/2020-07-02-missing-packages-for-ansible210-on-debian9.md "§2020-07-02T11:55:26Z Missing packages for ansible-2.10 on debian9"
@@ -25,6 +26,7 @@ Try to use zettelkasten via minimal MD and pandoc
 [§2020-06-04T13:47:19Z]: /top/type/howto/2020-06-04-clone-remote-bare-git.md "§2020-06-04T13:47:19Z Clone remote bare git"
 [§2020-06-03T10:32:03Z]: /top/type/journal/2020-06-03-sshrsa-deprecation-notice.md "§2020-06-03T10:32:03Z ssh-rsa deprecation notice"
 
+- 2020-07-03 [§ Debug Make non target SHELL invocation][§2020-07-03T12:53:19Z]
 - 2020-07-03 [§ Avoid closing all my emacs frames][§2020-07-03T11:23:15Z]
 - 2020-07-02 [§ Clean PATH from accumulated additions][§2020-07-02T18:59:19Z]
 - 2020-07-02 [§ Missing packages for ansible-2.10 on debian9][§2020-07-02T11:55:26Z]
