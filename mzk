@@ -158,7 +158,7 @@ $~: file = $(notdir $<)
 $~: base = $(basename $(file))
 $~: jq = . + { file: "$(md)" }
 $~: cmd = pandoc $(md) --template $(lib.d)/meta.json | jq '$(jq)' > $(json)
-$~: $$($$(@F)) $./.stone | $(md2json.o); @cd $.; echo : $(json); $(cmd)
+$~: $$($$(@F)) | $(md2json.o); @cd $.; echo : $(json); $(cmd)
 jsons: $(md2json.p)
 
 json.f := $(json2any.o)/all.json
