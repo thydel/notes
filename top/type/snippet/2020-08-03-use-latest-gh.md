@@ -8,9 +8,9 @@ type: snippet
 
 ```bash
 base=https://github.com/cli/cli/releases
-version=$(curl -sI $base/latest | grep ^location: | cut -d: -f3 | xargs basename | tr -d v)
+version=$(curl -sI $base/latest | grep ^location: | cut -d: -f3 | xargs basename | tr -d v\\r)
 wget $base/download/v${version}/gh_${version}_linux_amd64.deb
-sudo gdebi gh_${version}_linux_amd64.deb
+sudo gdebi -n gh_${version}_linux_amd64.deb
 ```
 
 [Local Variables:]::
