@@ -2,6 +2,7 @@
 
 Try to use zettelkasten via minimal MD and pandoc
 
+[§2020-08-03T12:59:22Z]: /top/type/snippet/2020-08-03-use-latest-gh.md "§2020-08-03T12:59:22Z Use latest gh"
 [§2020-07-04T13:48:59Z]: /top/type/howto/2020-07-04-use-gitattributes-for-gpg-and-ccrypt-files.md "§2020-07-04T13:48:59Z Use gitattributes for GPG and ccrypt files"
 [§2020-07-03T17:10:29Z]: /top/type/journal/2020-07-03-weird-problems-with-gpg-and-ansible.md "§2020-07-03T17:10:29Z Weird problems with GPG and ansible"
 [§2020-07-03T12:53:19Z]: /top/type/debug/2020-07-03-debug-make-non-target-shell-invocation.md "§2020-07-03T12:53:19Z Debug Make non target SHELL invocation"
@@ -28,6 +29,7 @@ Try to use zettelkasten via minimal MD and pandoc
 [§2020-06-04T13:47:19Z]: /top/type/howto/2020-06-04-clone-remote-bare-git.md "§2020-06-04T13:47:19Z Clone remote bare git"
 [§2020-06-03T10:32:03Z]: /top/type/journal/2020-06-03-sshrsa-deprecation-notice.md "§2020-06-03T10:32:03Z ssh-rsa deprecation notice"
 
+- 2020-08-03 [§ Use latest gh][§2020-08-03T12:59:22Z]
 - 2020-07-04 [§ Use gitattributes for GPG and ccrypt files][§2020-07-04T13:48:59Z]
 - 2020-07-03 [§ Weird problems with GPG and ansible][§2020-07-03T17:10:29Z]
 - 2020-07-03 [§ Debug Make non target SHELL invocation][§2020-07-03T12:53:19Z]
