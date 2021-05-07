@@ -62,6 +62,20 @@ define import.l
 $(strip
                               $(call /, import var €2 from target €1 in var €3)
                               $(call /, or import all €2 vars in €1 (or €(€1)) as target.var)
+  $(eval 9 := $(strip $1))    $(call /, The name of a target)
+  $(eval 8 := $(or $($9),$9)) $(call /, Or a var containing the name of a target)
+  $(eval 3 ?=)                $(call /, Arg 3 default to empty (avoid undef))
+  $(if $3,
+    $(eval $8: 9 := $$(eval $3 := $$($(strip $2)))),
+    $(foreach _, $2, $(eval $8: 9 := $$(eval $9.$_ := $$($_))))
+  )
+)
+endef
+
+define import.l_
+$(strip
+                              $(call /, import var €2 from target €1 in var €3)
+                              $(call /, or import all €2 vars in €1 (or €(€1)) as target.var)
   $(eval - := $(strip $1))    $(call /, The name of a target)
   $(eval ~ := $(or $($-),$-)) $(call /, Or a var containing the name of a target)
   $(eval 3 ?=)                $(call /, Arg 3 default to empty (avoid undef))
@@ -74,6 +88,7 @@ endef
 
 top.d := top
 new.d := $(top.d)/new
+ids.d := $(top.d)/ids
 ren.d := $(top.d)/type
 
 |F = $(notdir $|)
@@ -179,6 +194,17 @@ $~: jq += def section_id: split(" ") | map(ascii_downcase) | map(gsub("[^[:alnum
 $~: jq += $(jq.select) | ($(jq.mkdir), ($(jq.mv)))
 $~: $~ := < $(json.f) jq -sr '$(call €,$(jq))'
 $~: $(json.f) | $(ren.d); @cd $.; $($@)
+
+~ := jq
+$~: select := map(select(.type != "" and .title != ""))
+
+~ := ids
+ifneq ($(filter $~,$(MAKECMDGOALS)),)
+$(warning $~)
+$(warning foo)
+$(call import.l, jq, select)
+$~: $(json.f) | $(ids.d); @echo '$(jq.select)'
+endif
 
 χ := \\"#"
 quote.l = $(subst «,$(χ),$(subst »,$(χ),$1))
